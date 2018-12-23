@@ -129,7 +129,7 @@ public class NavImage {
         }
         
         for (Path entry : entries) {
-            long size_entry = -1l;
+            long size_entry = -Long.MAX_VALUE;
             if (Files.isDirectory(entry)) {
                 if (depth < max_depth)
                     size_entry = searchDir (entry, original, root, depth+1);

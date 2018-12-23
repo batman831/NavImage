@@ -49,7 +49,9 @@ public class DirIndex {
     }
     
     private String displayableSize (long size) {
-        if (size < 512)
+        if (size < 0)
+            return "N/A";
+        else if (size < 512)
             return String.format("%d B", size);
         else if (size < 512*1024)
             return String.format("%.2f KB", size/1024.0);
