@@ -2,6 +2,7 @@ package navimage;
 
 import java.nio.file.*;
 import java.io.IOException;
+import java.util.Scanner;
 
 public class NavImage {
     /*
@@ -17,6 +18,7 @@ public class NavImage {
     //Each directory/file equals 1 entry.
     //int below stores no. of entries that have been passed to show progress.
     private long entries_scanned = 0;
+    private long total_entries = 0;
     
     //In case of heavily nested directory structures with millions of files -
     //- it is neither required nor advisable to create navmap of entire -
@@ -54,24 +56,37 @@ public class NavImage {
     
     //This is the wrapper method for inner recursive method call.
     public void searchDir (Path original, Path root) {
-        //First copy style table.css to directory root
-        try {
-            Files.createDirectory(root);
-            Files.copy(Paths.get("table.css"),
-                                  Paths.get(root.toString(), "table.css"));
-        } catch (Exception e) {
-            System.err.println("Unable to generate table.css style file." +
-                                "HTML files will not be styled!");
-            e.printStackTrace();
-        }
-        DirIndex.stylesheet = Paths.get(root.toString(), "table.css");
+        
         
         //Began scanning now.
         System.out.println("Initiating scan with depth " + max_depth);
-        searchDir (original, original, root, 0);
+        countFiles (original, 0);
+        System.out.println("Total entries in source : " + total_entries);
+        System.out.println("Do you want to still create NavImage? (Y/N)");
+        System.out.println("TIP : Avoid creation of nav image with large number"
+                + " of entries");
+        
+        Scanner in = new Scanner(System.in);
+        char ch = in.next().charAt(0);
+        
+        if (ch == 'Y' || ch == 'y') {
+            //First copy style table.css to directory root
+            try {
+                Files.createDirectory(root);
+                Files.copy(Paths.get("table.css"),
+                            Paths.get(root.toString(), "table.css"));
+            } catch (Exception e) {
+                System.err.println("Unable to generate table.css style file." +
+                                "HTML files will not be styled!");
+                e.printStackTrace();
+            }
+            DirIndex.stylesheet = Paths.get(root.toString(), "table.css");
+            
+            searchDir (original, original, root, 0);
+        }
         
         //Scanning complete.
-        System.out.println("Total entries : " + entries_scanned);
+        System.out.println("End of operation");
     }
     
     //Actual recursive method.
@@ -88,8 +103,7 @@ public class NavImage {
         } catch (Exception e) {
             System.err.println("Error occured while scanning directory.");
             System.err.println(p + "\nThis directory and associated subdirectories"
-                    + " will not be scanned. View error details below.\n");
-            e.printStackTrace();
+                    + " will not be scanned.");
             return;
         }
         
@@ -130,11 +144,39 @@ public class NavImage {
             
             entries_scanned ++;
             if (entries_scanned % 500 == 0) {
-                System.out.println("Entries scanned : " + entries_scanned);
+                System.out.println("Entries created : " + entries_scanned);
             }
         }
 
         //Finally close the index.html file after writing data.
         index.close();
+    }
+    
+    //only for counting files
+    public void countFiles (Path p, int depth) {
+        
+        //First retrive all entries
+        DirectoryStream<Path> entries;
+        try {
+            entries = Files.newDirectoryStream(p);
+        } catch (Exception e) {
+            System.err.println("Error occured while scanning directory.");
+            System.err.println(p + "\nThis directory and associated subdirectories"
+                    + " will not be scanned. View error details below.\n");
+            e.printStackTrace();
+            return;
+        }
+        
+        for (Path entry : entries) {
+            if (Files.isDirectory(entry)) {
+                if (depth < max_depth)
+                    countFiles (entry, depth+1);
+            }
+            
+            total_entries ++;
+            if (total_entries % 1000 == 0) {
+                System.out.println("Entries scanned : " + total_entries);
+            }
+        }
     }
 }
