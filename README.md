@@ -22,6 +22,7 @@ Example -
 
 **Note** -> using `depth` is optional. Depth controls upto what depth should the program go in the directory structure with original source considered as depth 0;
 If your directory structure consists of large number of files >100k then you should consider depth controlling it otherwise the program might take long time to execute.
+If, however, you choose to depth control then the directory size will not be obtained correctly (it will only include contribution from files upto that depth level).
 
 On execution, the program first scans for total number of files in the directory. This process is relatively fast. This is to give you a rough idea of how much time the actual process is going to take.
 If the scanning completes in say, 10 seconds then the actual nav image creation can take upto a minute. Time depends on the total number of files needed to be scanned.
