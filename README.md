@@ -12,6 +12,10 @@ It replicates entire directory structure in folder only manner and associates ea
 # Usage
 **WARNING** -> If the .JAR file exists in, say C:\ Drive, then avoid creating image of C:\ directly. Otherwise the program would end up in infinite recursion by repeatedly reading the structure it itself creates.
 
+The *dist* folder contains required files. Clone it only if you are only interested in running the program.
+
+The repo represents a NetBeans project. You can clone it and open it with NetBeans (or any other IDE if supports) to edit it.
+
 Requires java 8+
 
 `java -jar NavImage.jar <source directory> <destination> [<depth level>]`
