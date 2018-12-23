@@ -8,11 +8,11 @@ public class DirIndex {
     private PrintWriter writer;
     
     public DirIndex (Path p) throws IOException {
-        p = Paths.get(p.toString(), "index.html");
         
         writer = new PrintWriter(
                  new BufferedWriter(
-                 new FileWriter(p.toString())));
+                 new FileWriter(Paths.get(p.toString(), "index.html")
+                                .toString())));
         
         writer.println("<!DOCTYPE html>");
         writer.println("<html>");

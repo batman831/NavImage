@@ -72,7 +72,7 @@ public class NavImage {
         if (ch == 'Y' || ch == 'y') {
             //First copy style table.css to directory root
             try {
-                Files.createDirectory(root);
+                Files.createDirectories(root);
                 Files.copy(Paths.get("table.css"),
                             Paths.get(root.toString(), "table.css"));
             } catch (Exception e) {
@@ -104,9 +104,7 @@ public class NavImage {
         try {
             entries = Files.newDirectoryStream(p);
         } catch (Exception e) {
-            System.err.println("Error occured while scanning directory.");
-            System.err.println(p + "\nThis directory and associated subdirectories"
-                    + " will not be scanned.");
+            System.err.println(e);
             return 0l;
         }
         
@@ -117,9 +115,6 @@ public class NavImage {
         try {
             Files.createDirectories(mapped);
         } catch (Exception e) {
-            System.err.println("Error occured while creating map directory : " + mapped);
-            System.err.println(p + "\nThis directory and associated subdirectories"
-                    + " will not be scanned. View error details below.\n");
             System.err.println(e);
             return 0l;
         }
@@ -129,9 +124,6 @@ public class NavImage {
         try {
             index = new DirIndex (mapped);
         } catch (Exception e) {
-            System.err.println("Error occured while creating index file in : " + mapped);
-            System.err.println(p + "\nThis directory and associated subdirectories"
-                    + " will not be scanned. View error details below.\n");
             System.err.println(e);
             return 0l;
         }
@@ -173,9 +165,6 @@ public class NavImage {
         try {
             entries = Files.newDirectoryStream(p);
         } catch (Exception e) {
-            System.err.println("Error occured while scanning directory.");
-            System.err.println(p + "\nThis directory and associated subdirectories"
-                    + " will not be scanned. View error details below.\n");
             System.err.println(e);
             return;
         }
