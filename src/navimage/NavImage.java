@@ -78,7 +78,7 @@ public class NavImage {
             } catch (Exception e) {
                 System.err.println("Unable to generate table.css style file." +
                                 "HTML files will not be styled!");
-                e.printStackTrace();
+                System.err.println(e);
             }
             DirIndex.stylesheet = Paths.get(root.toString(), "table.css");
             
@@ -94,7 +94,10 @@ public class NavImage {
     // original -> path of actual source directory root
     // root     -> root path of destination directory
     // depth    -> which depth is the recursion currently at?
-    public void searchDir (Path p, Path original, Path root, int depth) {
+    public long searchDir (Path p, Path original, Path root, int depth) {
+        
+        //size in bytes of directory
+        long size = 0l;
         
         //First retrive all entries
         DirectoryStream<Path> entries;
@@ -104,7 +107,7 @@ public class NavImage {
             System.err.println("Error occured while scanning directory.");
             System.err.println(p + "\nThis directory and associated subdirectories"
                     + " will not be scanned.");
-            return;
+            return 0l;
         }
         
         //mapped is path to corresponding directory image
@@ -117,8 +120,8 @@ public class NavImage {
             System.err.println("Error occured while creating map directory : " + mapped);
             System.err.println(p + "\nThis directory and associated subdirectories"
                     + " will not be scanned. View error details below.\n");
-            e.printStackTrace();
-            return;
+            System.err.println(e);
+            return 0l;
         }
 
         //index wraps index.html file of current directory. Initialize it.
@@ -129,18 +132,27 @@ public class NavImage {
             System.err.println("Error occured while creating index file in : " + mapped);
             System.err.println(p + "\nThis directory and associated subdirectories"
                     + " will not be scanned. View error details below.\n");
-            e.printStackTrace();
-            return;
+            System.err.println(e);
+            return 0l;
         }
         
         for (Path entry : entries) {
+            long size_entry = -1l;
             if (Files.isDirectory(entry)) {
-                index.addDir (entry);
                 if (depth < max_depth)
-                    searchDir (entry, original, root, depth+1);
+                    size_entry = searchDir (entry, original, root, depth+1);
+                index.addDir (entry, size_entry);
             }
-            else if (Files.isRegularFile(entry))
-                index.addFile (entry);
+            else if (Files.isRegularFile(entry)) {
+                try {
+                    size_entry = (long)Files.getAttribute(entry, "size");
+                } catch (IOException e) {
+                    System.err.println("Unable to fetch size of " + entry);
+                }
+                index.addFile (entry, size_entry);
+            }
+            
+            size += size_entry;
             
             entries_scanned ++;
             if (entries_scanned % 500 == 0) {
@@ -150,6 +162,7 @@ public class NavImage {
 
         //Finally close the index.html file after writing data.
         index.close();
+        return size;
     }
     
     //only for counting files
@@ -163,7 +176,7 @@ public class NavImage {
             System.err.println("Error occured while scanning directory.");
             System.err.println(p + "\nThis directory and associated subdirectories"
                     + " will not be scanned. View error details below.\n");
-            e.printStackTrace();
+            System.err.println(e);
             return;
         }
         

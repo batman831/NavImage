@@ -20,20 +20,22 @@ public class DirIndex {
                        p.relativize(stylesheet).toString());
         writer.println("<body>");
         writer.println("<table>");
-        writer.println("<tr><th>Name</th></tr>");
+        writer.println("<tr><th>Name</th><th>Size</th></tr>");
     }
     
-    public void addDir (Path p) {
+    public void addDir (Path p, long size) {
         writer.println("<tr>");
         writer.format("<td><a href=\"%s\"> %s </a></td>\n",
                       Paths.get(p.getFileName().toString(), "index.html"),
                       p.getFileName());
+        writer.format("<td>%s</td>", displayableSize(size));
         writer.println("</tr>");
     }
     
-    public void addFile (Path p) {
+    public void addFile (Path p, long size) {
         writer.println("<tr>");
         writer.format("<td>%s</td>", p.getFileName());
+        writer.format("<td>%s</td>", displayableSize(size));
         writer.println("</tr>");
     }
     
@@ -44,5 +46,16 @@ public class DirIndex {
         
         writer.flush();
         writer.close();
+    }
+    
+    private String displayableSize (long size) {
+        if (size < 512)
+            return String.format("%d B", size);
+        else if (size < 512*1024)
+            return String.format("%.2f KB", size/1024.0);
+        else if (size < 512 * 1024 * 1024)
+            return String.format("%.2f MB", size/(1024.0*1024.0));
+        else
+            return String.format("%.2f GB", size/(1024.0*1024.0*1024.0));
     }
 }
